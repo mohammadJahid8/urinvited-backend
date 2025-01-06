@@ -12,6 +12,10 @@ const EventSchema = new Schema(
     userEmail: {
       type: String,
     },
+    isUserNotified: {
+      type: Boolean,
+      default: false,
+    },
     video: {
       type: Schema.Types.ObjectId,
       ref: 'Video',

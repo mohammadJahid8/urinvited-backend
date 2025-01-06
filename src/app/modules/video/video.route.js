@@ -11,4 +11,8 @@ router.post('/upload', upload.single('thumbnail'), VideoController.uploadVideo);
 
 router.get('/', VideoController.getAllVideos);
 
+router.patch('/feedback', upload.single('attachment'), VideoController.createFeedback);
+
+router.get('/feedback/:videoId', VideoController.getAllFeedbacks);
+
 export const VideoRoutes = router; 

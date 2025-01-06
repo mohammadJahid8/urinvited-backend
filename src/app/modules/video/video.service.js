@@ -44,14 +44,31 @@ const uploadVideo = async (payload, file) => {
   }
 };
 
+const createFeedback = async (payload, file) => {
+  if (file?.path) {
+    const result = await cloudinary.v2.uploader.upload(file.path);
+    payload.attachment = result.secure_url;
+  }
+
+  const result = await Video.findByIdAndUpdate(payload.videoId, { $push: { feedbacks: payload } }, { new: true });
+  return result;
+};
+
+const getAllFeedbacks = async (videoId) => {
+  const result = await Video.findById(videoId).select('feedbacks');
+  return result;
+};
+
 
 const getAllVideos = async () => {
-  const videos = await Video.find().populate('uploadedBy');
+  const videos = await Video.find().populate('uploadedBy').sort({ createdAt: -1 });
   return videos;
 };
 
 export const VideoService = {
   uploadVideo,
   getAllVideos,
+  createFeedback,
+  getAllFeedbacks,
 };
 

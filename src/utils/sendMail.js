@@ -1,23 +1,12 @@
 import nodemailer from 'nodemailer';
-import { template } from './emailTemplate.js';
-import { reminderTemplate } from './reminderTemplate.js';
 import config from '../config/config.js';
-import { updateTemplate } from './updateTemplate.js';
 
 export const sendMail = async (
-  name,
-  emails,
+  to,
   subject,
-  inviteLink,
-  message,
-  eventName,
+  html,
 ) => {
-  const mailTemp =
-    inviteLink && name
-      ? template(inviteLink, name, eventName)
-      : inviteLink
-      ? updateTemplate(inviteLink, eventName)
-      : reminderTemplate(message, name, eventName);
+
 
   const transporter = nodemailer.createTransport({
     host: 'smtp.office365.com',
@@ -31,9 +20,9 @@ export const sendMail = async (
 
   const mailOptions = {
     from: 'invite@mailurinvited.io',
-    to: emails,
+    to: to,
     subject,
-    html: mailTemp,
+    html,
   };
 
   try {

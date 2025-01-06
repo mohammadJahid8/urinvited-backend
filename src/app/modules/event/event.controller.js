@@ -45,10 +45,20 @@ const getEventById = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const sendVideoPreviewInvite = catchAsync(async (req, res) => {
+  const result = await EventService.sendVideoPreviewInvite(req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Video preview invite sent successfully!',
+    data: result,
+  });
+});
 
 export const EventController = {
   createOrUpdateEvent,
   getAllEvents,
   getEventById,
   updateEventCustomization,
+  sendVideoPreviewInvite,
 };

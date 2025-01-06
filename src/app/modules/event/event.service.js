@@ -1,6 +1,7 @@
 import { Event } from './event.model.js';
 import cloudinary from 'cloudinary';
 import config from '../../../config/config.js';
+import { sendMail } from '../../../utils/sendMail.js';
 
 cloudinary.v2.config({
   cloud_name: config.cloud_name,
@@ -77,6 +78,19 @@ const getEventById = async id => {
   return event;
 };
 
+const sendVideoPreviewInvite = async (payload) => {
+  const event = await Event.findById(payload.eventId).select('userEmail');
+  const html = `
+    <p>Your video is ready! Please preview it now.</p>
+    <p><a href="${payload.previewLink}">View Video</a></p>
+    <p>Thank you!</p>
+    <p>MailurInvited Team</p>`;
+  const result = await sendMail(event.userEmail, 'Your video is ready! Please preview it now.', html);
+  event.isUserNotified = true;
+  await event.save();
+  return result;
+};
+
 
 
 export const EventService = {
@@ -84,4 +98,5 @@ export const EventService = {
   getAllEvents,
   getEventById,
   updateEventCustomization,
+  sendVideoPreviewInvite,
 };

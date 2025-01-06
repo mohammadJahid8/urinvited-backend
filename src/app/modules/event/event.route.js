@@ -15,4 +15,6 @@ router.get('/', EventController.getAllEvents);
 
 router.get('/:id', EventController.getEventById);
 
+router.post('/send-invite', EventController.sendVideoPreviewInvite);
+
 export const EventRoutes = router; 
