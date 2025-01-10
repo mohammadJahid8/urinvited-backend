@@ -1,6 +1,7 @@
 import express from 'express';
 import { EventController } from './event.controller.js';
 import multer from 'multer';
+import auth from '../../middlewares/auth.js';
 
 const router = express.Router();
 const storage = multer.diskStorage({});
@@ -11,7 +12,7 @@ router.patch('/create', EventController.createOrUpdateEvent);
 
 router.patch('/customization/:id', upload.fields([{ name: 'eventLogo' }, { name: 'themeBackgroundImage' }, { name: 'footerBackgroundImage' }, { name: 'thumbnailImage' }]), EventController.updateEventCustomization);
 
-router.get('/', EventController.getAllEvents);
+router.get('/', auth('user', 'admin'), EventController.getAllEvents);
 
 router.get('/:id', EventController.getEventById);
 

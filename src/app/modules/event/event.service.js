@@ -69,8 +69,16 @@ const updateEventCustomization = async (eventId, payload, files) => {
 };
 
 
-const getAllEvents = async () => {
-  const events = await Event.find().populate('video');
+const getAllEvents = async (user) => {
+  const role = user.role;
+
+
+  let query = {};
+  if (role === 'user') {
+    query = { userEmail: user.email };
+  }
+
+  const events = await Event.find(query).populate('video');
   return events;
 };
 const getEventById = async id => {

@@ -13,8 +13,29 @@ const uploadVideo = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const updateVideo = catchAsync(async (req, res) => {
+  const result = await VideoService.updateVideo(req.body, req.file);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Video updated successfully!',
+    data: result,
+  });
+});
+
+const approveVideo = catchAsync(async (req, res) => {
+  const result = await VideoService.approveVideo(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Video approved successfully!',
+    data: result,
+  });
+});
 const createFeedback = catchAsync(async (req, res) => {
-  console.log(req.body, req.file)
   const result = await VideoService.createFeedback(req.body, req.file);
 
   sendResponse(res, {
@@ -50,4 +71,6 @@ export const VideoController = {
   getAllVideos,
   createFeedback,
   getAllFeedbacks,
+  updateVideo,
+  approveVideo
 };

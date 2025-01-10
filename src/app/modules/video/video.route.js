@@ -11,6 +11,10 @@ router.post('/upload', upload.single('thumbnail'), VideoController.uploadVideo);
 
 router.get('/', VideoController.getAllVideos);
 
+router.patch('/update', upload.single('thumbnail'), VideoController.updateVideo);
+
+router.patch('/approve', VideoController.approveVideo);
+
 router.patch('/feedback', upload.single('attachment'), VideoController.createFeedback);
 
 router.get('/feedback/:videoId', VideoController.getAllFeedbacks);

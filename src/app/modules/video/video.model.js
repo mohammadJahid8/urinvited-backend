@@ -15,12 +15,25 @@ const VideoSchema = new Schema(
       type: String,
       // unique: true,
     },
-    url: {
-      type: String,
-    },
-    thumbnail: {
-      type: String,
-    },
+    videos: [
+      {
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+        updatedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        url: {
+          type: String,
+        },
+        thumbnail: {
+          type: String,
+        },
+      },
+    ],
+
     eventDate: {
       type: Date,
     },

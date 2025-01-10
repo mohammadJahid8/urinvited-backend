@@ -28,7 +28,7 @@ const updateEventCustomization = catchAsync(async (req, res) => {
 });
 
 const getAllEvents = catchAsync(async (req, res) => {
-  const result = await EventService.getAllEvents();
+  const result = await EventService.getAllEvents(req.user);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
