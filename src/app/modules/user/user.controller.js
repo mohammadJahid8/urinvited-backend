@@ -33,62 +33,6 @@ const updateUser = catchAsync(async (req, res) => {
   });
 });
 
-const updateOrCreateUserPersonalInformation = catchAsync(
-  async (req, res) => {
-    const data = JSON.parse(req.body.data || '{}');
-
-    const result = await UserService.updateOrCreateUserPersonalInformation(
-      data,
-      req.user,
-      req.file
-    );
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'User personal information updated successfully!',
-      data: result,
-    });
-  }
-);
-const updateOrCreateUserProfessionalInformation = catchAsync(
-  async (req, res) => {
-    const data = JSON.parse(req.body.data || '{}');
-    const files = req.files;
-
-    const result = await UserService.updateOrCreateUserProfessionalInformation(
-      data,
-      req.user,
-      files
-    );
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'User professional information updated successfully!',
-      data: result,
-    });
-  }
-);
-const updateOrCreateUserDocuments = catchAsync(
-  async (req, res) => {
-    const files = req.files;
-    const payload = JSON.parse(req.body.data || '{}');
-
-    const result = await UserService.updateOrCreateUserDocuments(
-      req.user,
-      files,
-      payload
-    );
-
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'User documents updated successfully!',
-      data: result,
-    });
-  }
-);
 
 
 
@@ -109,7 +53,4 @@ export const UserController = {
   createUser,
   updateUser,
   getUserProfile,
-  updateOrCreateUserPersonalInformation,
-  updateOrCreateUserProfessionalInformation,
-  updateOrCreateUserDocuments,
 };
