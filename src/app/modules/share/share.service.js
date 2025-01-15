@@ -1,10 +1,10 @@
-import config from "../../../config/config.js";
+// import config from "../../../config/config.js";
 import { template } from "../../../utils/emailTemplate.js";
 import { sendMail } from "../../../utils/sendMail.js";
-import twilio from "twilio";
+// import twilio from "twilio";
 import { Share } from "./share.model.js";
 
-const client = twilio(config.twilio_sid, config.twilio_auth_token);
+// const client = twilio(config.twilio_sid, config.twilio_auth_token);
 
 
 const sendMailToUser = async (data) => {
@@ -27,9 +27,9 @@ const shareEvent = async (data) => {
   const guestWithEmail = guests
     ?.filter((guest) => guest?.email)
     .filter(Boolean);
-  const guestWithPhone = guests
-    ?.filter((guest) => guest?.phone)
-    .filter(Boolean);
+  // const guestWithPhone = guests
+  //   ?.filter((guest) => guest?.phone)
+  //   .filter(Boolean);
 
   // for (const guest of guestWithPhone) {
   //   await client.messages.create({

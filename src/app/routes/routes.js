@@ -4,6 +4,7 @@ import { UserRoutes } from '../modules/user/user.route.js';
 import { VideoRoutes } from '../modules/video/video.route.js';
 import { EventRoutes } from '../modules/event/event.route.js';
 import { ShareRoutes } from '../modules/share/share.route.js';
+import { RsvpRoutes } from '../modules/rsvp/rsvp.route.js';
 
 
 const router = express.Router();
@@ -28,6 +29,10 @@ const moduleRoutes = [
   {
     path: '/share',
     route: ShareRoutes,
+  },
+  {
+    path: '/rsvp',
+    route: RsvpRoutes,
   },
 ];
 
