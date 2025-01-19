@@ -2,6 +2,7 @@ import { Event } from './event.model.js';
 import cloudinary from 'cloudinary';
 import config from '../../../config/config.js';
 import { sendMail } from '../../../utils/sendMail.js';
+import mongoose from 'mongoose';
 
 cloudinary.v2.config({
   cloud_name: config.cloud_name,
@@ -71,19 +72,88 @@ const updateEventCustomization = async (eventId, payload, files) => {
 
 const getAllEvents = async (user) => {
   const role = user.role;
-
-
-  let query = {};
+  let matchStage = {};
   if (role === 'user') {
-    query = { userEmail: user.email };
+    matchStage = { userEmail: user.email };
   }
 
-  const events = await Event.find(query).populate('video');
+  const events = await Event.aggregate([
+    { $match: matchStage },
+    {
+      $lookup: {
+        from: 'videos',
+        localField: 'video',
+        foreignField: '_id',
+        as: 'video'
+      }
+    },
+    {
+      $lookup: {
+        from: 'shares',
+        localField: '_id',
+        foreignField: 'event',
+        as: 'share'
+      }
+    },
+    {
+      $lookup: {
+        from: 'rsvps',
+        localField: '_id',
+        foreignField: 'event',
+        as: 'rsvps'
+      }
+    },
+    {
+      $unwind: {
+        path: '$share',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $unwind: {
+        path: '$video',
+        preserveNullAndEmptyArrays: true
+      }
+    }
+  ]);
+
   return events;
 };
 const getEventById = async id => {
-  const event = await Event.findById(id).populate('video');
-  return event;
+  const event = await Event.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(id) } },
+    {
+      $lookup: {
+        from: 'videos',
+        localField: 'video',
+        foreignField: '_id',
+        as: 'video'
+      }
+    },
+    {
+      $lookup: {
+        from: 'shares',
+        localField: '_id',
+        foreignField: 'event',
+        as: 'share'
+      }
+    },
+    {
+      $lookup: {
+        from: 'rsvps',
+        localField: '_id',
+        foreignField: 'event',
+        as: 'rsvps'
+      }
+    },
+    { $unwind: { path: '$video', preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: '$share', preserveNullAndEmptyArrays: true } },
+    // { $unwind: { path: '$rsvps', preserveNullAndEmptyArrays: true } }
+  ]);
+
+  console.log({ event })
+
+  return event[0];
 };
 
 const sendVideoPreviewInvite = async (payload) => {

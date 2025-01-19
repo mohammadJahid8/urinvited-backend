@@ -6,6 +6,10 @@ const createOrUpdateRsvp = async (payload) => {
   const rsvp = await Rsvp.findOneAndUpdate({ event, contact }, payload, { upsert: true, new: true });
   return rsvp;
 };
+const updateRsvp = async (id, payload) => {
+  const rsvp = await Rsvp.findByIdAndUpdate(id, payload, { upsert: true, new: true });
+  return rsvp;
+};
 
 const getRsvpByContact = async (eventId, contact) => {
   const rsvp = await Rsvp.findOne({ event: eventId, contact });
@@ -17,8 +21,16 @@ const getRsvpByEvent = async (event) => {
   return rsvp;
 };
 
+const deleteRsvp = async (id) => {
+  const rsvp = await Rsvp.findByIdAndDelete(id);
+  return rsvp;
+};
+
 export const RsvpService = {
   createOrUpdateRsvp,
+  updateRsvp,
   getRsvpByContact,
   getRsvpByEvent,
+  deleteRsvp,
 };
+

@@ -26,8 +26,15 @@ const RsvpSchema = new Schema(
       type: String,
     },
 
+    reaction: {
+      type: String
+    },
+
     guests: [
       {
+        guestId: {
+          type: String,
+        },
         name: {
           type: String,
         },

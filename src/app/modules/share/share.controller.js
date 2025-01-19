@@ -25,8 +25,19 @@ const shareEvent = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getShares = catchAsync(async (req, res) => {
+  const result = await ShareService.getShares(req.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Event shares fetched successfully!',
+    data: result,
+  });
+});
 
 export const ShareController = {
   sendMailToUser,
   shareEvent,
+  getShares,
 };

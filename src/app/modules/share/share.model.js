@@ -23,6 +23,18 @@ const ShareSchema = new Schema(
           type: Boolean,
           default: true,
         },
+        extraGuests: [
+          {
+            _id: false,
+            name: {
+              type: String,
+            },
+            isAdult: {
+              type: Boolean,
+              default: true,
+            },
+          }
+        ],
       }
     ],
   },

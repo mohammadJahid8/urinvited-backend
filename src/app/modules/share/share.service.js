@@ -1,8 +1,10 @@
 // import config from "../../../config/config.js";
+import httpStatus from "http-status";
 import { template } from "../../../utils/emailTemplate.js";
 import { sendMail } from "../../../utils/sendMail.js";
 // import twilio from "twilio";
 import { Share } from "./share.model.js";
+import ApiError from "../../../errors/ApiError.js";
 
 // const client = twilio(config.twilio_sid, config.twilio_auth_token);
 
@@ -17,13 +19,48 @@ const sendMailToUser = async (data) => {
 const shareEvent = async (data) => {
   const { eventLink, guests, hostName, eventId } = data;
 
-  console.log("ddata", data)
 
-  await Share.create({
-    event: eventId,
-    guests: guests,
-  });
 
+  if (!eventId || !Array.isArray(guests)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid payload');
+  }
+
+  // Find the document with the specified event ID
+  let shareDoc = await Share.findOne({ event: eventId });
+
+  if (!shareDoc) {
+    // If no document exists, create a new one
+    shareDoc = new Share({ event: eventId, guests });
+  } else {
+
+    const existingGuests = shareDoc.guests;
+
+
+    guests.forEach((guest) => {
+      // Check if the guest already exists in existingGuests
+      const existingIndex = existingGuests.findIndex(
+        (existingGuest) =>
+          existingGuest.email === guest.email && existingGuest.phone === guest.phone
+      );
+
+      if (existingIndex !== -1) {
+        // Update the existing guest
+        existingGuests[existingIndex] = {
+          ...existingGuests[existingIndex],
+          ...guest,
+        };
+      } else {
+        // Add the new guest
+        existingGuests.push(guest);
+      }
+    });
+
+    shareDoc.guests = existingGuests;
+
+  }
+
+
+  await shareDoc.save();
   const guestWithEmail = guests
     ?.filter((guest) => guest?.email)
     .filter(Boolean);
@@ -51,7 +88,13 @@ const shareEvent = async (data) => {
   };
 };
 
+const getShares = async (eventId) => {
+  const shares = await Share.find({ event: eventId });
+  return shares;
+};
+
 export const ShareService = {
   sendMailToUser,
   shareEvent,
+  getShares,
 };

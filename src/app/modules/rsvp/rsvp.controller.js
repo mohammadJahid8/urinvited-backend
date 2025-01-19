@@ -35,10 +35,32 @@ const getRsvpByEvent = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const deleteRsvp = catchAsync(async (req, res) => {
+  const result = await RsvpService.deleteRsvp(req.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'RSVP fetched successfully!',
+    data: result,
+  });
+});
+const updateRsvp = catchAsync(async (req, res) => {
+  const result = await RsvpService.updateRsvp(req.params.id, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'RSVP fetched successfully!',
+    data: result,
+  });
+});
 
 
 export const RsvpController = {
   createOrUpdateRsvp,
   getRsvpByContact,
   getRsvpByEvent,
+  deleteRsvp,
+  updateRsvp,
 };
