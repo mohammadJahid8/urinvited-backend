@@ -175,6 +175,9 @@ const EventSchema = new Schema(
           url: {
             type: String,
           },
+          buttonText: {
+            type: String,
+          }
         }
       ],
       // customFields: [
