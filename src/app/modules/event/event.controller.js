@@ -55,10 +55,21 @@ const sendVideoPreviewInvite = catchAsync(async (req, res) => {
   });
 });
 
+const deleteEvent = catchAsync(async (req, res) => {
+  const result = await EventService.deleteEvent(req.params.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Event deleted successfully!',
+    data: result,
+  });
+});
+
 export const EventController = {
   createOrUpdateEvent,
   getAllEvents,
   getEventById,
   updateEventCustomization,
   sendVideoPreviewInvite,
+  deleteEvent,
 };

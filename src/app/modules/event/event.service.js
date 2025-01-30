@@ -3,6 +3,8 @@ import cloudinary from 'cloudinary';
 import config from '../../../config/config.js';
 import { sendMail } from '../../../utils/sendMail.js';
 import mongoose from 'mongoose';
+import { Share } from '../share/share.model.js';
+import { Rsvp } from '../rsvp/rsvp.model.js';
 
 cloudinary.v2.config({
   cloud_name: config.cloud_name,
@@ -169,6 +171,28 @@ const sendVideoPreviewInvite = async (payload) => {
   return result;
 };
 
+const deleteEvent = async (id) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const event = await Event.findByIdAndDelete(id, { session });
+    if (!event) {
+      throw new Error('Event not found');
+    }
+
+    await Share.deleteMany({ event: id }, { session });
+    await Rsvp.deleteMany({ event: id }, { session });
+
+    await session.commitTransaction();
+    session.endSession();
+    return event;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};
+
 
 
 export const EventService = {
@@ -177,4 +201,5 @@ export const EventService = {
   getEventById,
   updateEventCustomization,
   sendVideoPreviewInvite,
+  deleteEvent,
 };

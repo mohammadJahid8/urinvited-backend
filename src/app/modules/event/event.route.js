@@ -18,4 +18,6 @@ router.get('/:id', EventController.getEventById);
 
 router.post('/send-invite', EventController.sendVideoPreviewInvite);
 
+router.delete('/:id', EventController.deleteEvent);
+
 export const EventRoutes = router; 
