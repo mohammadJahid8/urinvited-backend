@@ -70,18 +70,23 @@ const shareEvent = async (data) => {
 
   for (const guest of guestWithPhone) {
     await client.messages.create({
-      to: "+8801633909408",
-      // to: guest?.phone,
-      from: '+18335771907', //1(833)5771907
-      body: `Hi ${guest?.name}, You are invited to ${hostName}'s event. Please click on the link to join the event: ${eventLink}`,
+      // to: "+8801633909408",
+      to: guest?.phone,
+      from: '+16197752197',
+      body: `Hi ${guest?.name}, You are invited to ${hostName}'s event. Please click on the link to join the event: ${eventLink}?e=${guest?.email || guest?.phone}&n=${guest?.name}`,
+      // mediaUrl: [
+      //   "https://res.cloudinary.com/ddvrxtfbc/image/upload/v1738227298/z81qfpyoeklumutk1xvc.jpg"
+      // ]
+      shortenUrls: true,
+
+
+
     });
   }
 
 
-
-
   for (const guest of guestWithEmail) {
-    await sendMail(guest?.email, `Invitation to ${hostName}'s event`, template(`Invitation to ${hostName}'s event`, `<p>Hi ${guest?.name}, You are invited to ${hostName}'s event. Please click on the link to join the event: <a href="${eventLink}?e=${guest?.email || guest?.phone}&n=${guest?.name}">${eventLink}</a></p>`));
+    await sendMail(guest?.email, `Invitation to ${hostName}'s event`, template(`Invitation to ${hostName}'s event`, `<p>Hi ${guest?.name}, You are invited to ${hostName}'s event. Please click on the link to join the event: <a href="${eventLink}?e=${guest?.email || guest?.phone}&n=${guest?.name}">Click here</a></p>`));
   }
   return {
     message: "Event shared successfully",

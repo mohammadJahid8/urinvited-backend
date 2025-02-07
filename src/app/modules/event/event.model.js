@@ -94,6 +94,9 @@ const EventSchema = new Schema(
       allowAdditionalAttendees: {
         type: Boolean,
       },
+      isMaximumCapacitySet: {
+        type: Boolean,
+      },
       additionalAttendees: {
         type: String,
       },

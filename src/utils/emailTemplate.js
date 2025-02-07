@@ -58,7 +58,9 @@ export const template = (subject, body) => {
       <div class="content">
         ${body}
       </div>
-      <div class="cta">UNINVITED</div>
+      <div class="cta">
+        <img src="https://i.ibb.co.com/PzhSG03Y/urinvited-logo.png" alt="URINVITED Logo" />
+      </div>
     </div>
   </body>
 </html>`;

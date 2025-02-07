@@ -5,6 +5,7 @@ import { sendMail } from '../../../utils/sendMail.js';
 import mongoose from 'mongoose';
 import { Share } from '../share/share.model.js';
 import { Rsvp } from '../rsvp/rsvp.model.js';
+import { Video } from '../video/video.model.js';
 
 cloudinary.v2.config({
   cloud_name: config.cloud_name,
@@ -180,8 +181,15 @@ const deleteEvent = async (id) => {
       throw new Error('Event not found');
     }
 
+    const videoId = event.video;
+
+    if (videoId) {
+      await Video.findByIdAndDelete(videoId, { session });
+    }
+
     await Share.deleteMany({ event: id }, { session });
     await Rsvp.deleteMany({ event: id }, { session });
+
 
     await session.commitTransaction();
     session.endSession();
