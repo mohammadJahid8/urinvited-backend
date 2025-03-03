@@ -218,7 +218,24 @@ const EventSchema = new Schema(
       travelSourceLink: {
         type: String,
       },
-    }
+    },
+    videoComments: [
+      {
+        comment: {
+          type: String,
+        },
+        name: {
+          type: String,
+        },
+        email: {
+          type: String,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      }
+    ]
   },
   {
     timestamps: true,

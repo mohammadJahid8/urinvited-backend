@@ -65,6 +65,17 @@ const deleteEvent = catchAsync(async (req, res) => {
   });
 });
 
+const createComment = catchAsync(async (req, res) => {
+  const result = await EventService.createComment(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Comment created successfully!',
+    data: result,
+  });
+});
+
 export const EventController = {
   createOrUpdateEvent,
   getAllEvents,
@@ -72,4 +83,5 @@ export const EventController = {
   updateEventCustomization,
   sendVideoPreviewInvite,
   deleteEvent,
+  createComment,
 };

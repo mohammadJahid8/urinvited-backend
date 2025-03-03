@@ -20,4 +20,6 @@ router.post('/send-invite', EventController.sendVideoPreviewInvite);
 
 router.delete('/:id', EventController.deleteEvent);
 
+router.patch('/comment', EventController.createComment);
+
 export const EventRoutes = router; 

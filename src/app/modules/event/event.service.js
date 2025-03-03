@@ -201,6 +201,10 @@ const deleteEvent = async (id) => {
   }
 };
 
+const createComment = async (payload) => {
+  const event = await Event.findByIdAndUpdate(payload.eventId, { $push: { videoComments: payload } }, { new: true });
+  return event;
+};
 
 
 export const EventService = {
@@ -210,4 +214,5 @@ export const EventService = {
   updateEventCustomization,
   sendVideoPreviewInvite,
   deleteEvent,
+  createComment,
 };
