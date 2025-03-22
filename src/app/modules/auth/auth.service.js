@@ -3,11 +3,11 @@ import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError.js';
 import { User } from '../user/user.model.js';
 
-import { sendEmail } from './sendResetMail.js';
+import { sendResetEmail } from './sendResetMail.js';
 import { jwtHelpers } from '../../../helpers/jwtHelper.js';
 import config from '../../../config/config.js';
 
-const loginUser = async (payload) => {
+const loginUser = async payload => {
   const { email, password } = payload;
 
   const isUserExist = await User.isUserExist(email);
@@ -18,7 +18,7 @@ const loginUser = async (payload) => {
   if (isGoogleUser) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'Your account is associated with google! Please use google login.'
+      'Your account is associated with google! Please use google login.',
     );
   }
 
@@ -40,7 +40,7 @@ const loginUser = async (payload) => {
   const accessToken = jwtHelpers.createToken(
     { email: userEmail, role, _id },
     config.jwt.secret,
-    config.jwt.expires_in
+    config.jwt.expires_in,
   );
 
   return {
@@ -49,7 +49,7 @@ const loginUser = async (payload) => {
   };
 };
 
-const loginWithGoogle = async (payload) => {
+const loginWithGoogle = async payload => {
   const { email, role } = payload;
 
   const isUserExist = await User.isUserExist(email);
@@ -57,11 +57,10 @@ const loginWithGoogle = async (payload) => {
 
   const isGoogleUser = await User.isGoogleUser(email);
 
-
   if (isUserExist) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'User already exists with email!'
+      'User already exists with email!',
     );
   }
 
@@ -70,10 +69,8 @@ const loginWithGoogle = async (payload) => {
   const accessToken = jwtHelpers.createToken(
     { email, role, _id },
     config.jwt.secret,
-    config.jwt.expires_in
+    config.jwt.expires_in,
   );
-
-
 
   if (!isGoogleUser) {
     payload.isGoogleUser = true;
@@ -86,14 +83,10 @@ const loginWithGoogle = async (payload) => {
   };
 };
 
-const refreshToken = async (token) => {
-
+const refreshToken = async token => {
   let verifiedToken = null;
   try {
-    verifiedToken = jwtHelpers.verifyToken(
-      token,
-      config.jwt.refresh_secret
-    );
+    verifiedToken = jwtHelpers.verifyToken(token, config.jwt.refresh_secret);
   } catch (err) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid Refresh Token');
   }
@@ -114,9 +107,8 @@ const refreshToken = async (token) => {
       _id: isUserExist._id,
     },
     config.jwt.secret,
-    config.jwt.expires_in
+    config.jwt.expires_in,
   );
-
 
   return {
     accessToken: newAccessToken,
@@ -128,7 +120,7 @@ const changePassword = async (user, payload) => {
 
   //alternative way
   const isUserExist = await User.findOne({ id: user?.userId }).select(
-    '+password'
+    '+password',
   );
 
   if (!isUserExist) {
@@ -143,26 +135,25 @@ const changePassword = async (user, payload) => {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Old Password is incorrect');
   }
 
-
   isUserExist.password = password;
 
   // updating using save()
   isUserExist.save();
 };
 
-const forgotPass = async (payload) => {
+const forgotPass = async payload => {
   const isGoogleUser = await User.isGoogleUser(payload.email);
 
   if (isGoogleUser) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'This user is associated with Google! Please use Google login.'
+      'This user is associated with Google! Please use Google login.',
     );
   }
 
   const user = await User.findOne(
     { email: payload.email, isGoogleUser: false },
-    { email: 1, role: 1, _id: 1 }
+    { email: 1, role: 1, _id: 1 },
   );
 
   if (!user) {
@@ -177,7 +168,7 @@ const forgotPass = async (payload) => {
   await User.updateOne({ email: user.email }, { otp, otpExpiry });
 
   // Send the OTP to the user's email
-  await sendEmail(
+  await sendResetEmail(
     user.email,
     `
       <div>
@@ -185,7 +176,7 @@ const forgotPass = async (payload) => {
         <p>This OTP is valid for 2 minutes.</p>
         <p>Thank you</p>
       </div>
-    `
+    `,
   );
 
   return {
@@ -193,7 +184,7 @@ const forgotPass = async (payload) => {
   };
 };
 
-const verifyOtp = async (payload) => {
+const verifyOtp = async payload => {
   const { email, otp } = payload;
 
   const user = await User.findOne({ email }, { otp: 1, otpExpiry: 1 });
@@ -205,7 +196,7 @@ const verifyOtp = async (payload) => {
   if (!user.otp || !user.otpExpiry || new Date() > user.otpExpiry) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'OTP has expired or is invalid!'
+      'OTP has expired or is invalid!',
     );
   }
 
@@ -216,11 +207,11 @@ const verifyOtp = async (payload) => {
   // Mark user as verified for password reset
   await User.updateOne(
     { email },
-    { otp: null, otpExpiry: null, canResetPassword: true }
+    { otp: null, otpExpiry: null, canResetPassword: true },
   );
 };
 
-const resetPassword = async (payload) => {
+const resetPassword = async payload => {
   const { email, password } = payload;
 
   const user = await User.findOne({ email }, { canResetPassword: 1 });
@@ -232,20 +223,20 @@ const resetPassword = async (payload) => {
   if (!user.canResetPassword) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
-      'Password reset not allowed. Verify OTP first!'
+      'Password reset not allowed. Verify OTP first!',
     );
   }
 
   // Hash the new password
   const hashedPassword = await bcrypt.hash(
     password,
-    Number(config.bycrypt_salt_rounds)
+    Number(config.bycrypt_salt_rounds),
   );
 
   // Update the user's password and reset the eligibility flag
   await User.updateOne(
     { email },
-    { password: hashedPassword, canResetPassword: false }
+    { password: hashedPassword, canResetPassword: false },
   );
 };
 

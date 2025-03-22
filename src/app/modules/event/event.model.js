@@ -16,6 +16,10 @@ const EventSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isReminderSent: {
+      type: Boolean,
+      default: false,
+    },
     video: {
       type: Schema.Types.ObjectId,
       ref: 'Video',
@@ -180,8 +184,8 @@ const EventSchema = new Schema(
           },
           buttonText: {
             type: String,
-          }
-        }
+          },
+        },
       ],
       // customFields: [
       //   {
@@ -210,7 +214,7 @@ const EventSchema = new Schema(
           note: {
             type: String,
           },
-        }
+        },
       ],
       travelSource: {
         type: String,
@@ -234,15 +238,12 @@ const EventSchema = new Schema(
           type: Date,
           default: Date.now,
         },
-      }
-    ]
+      },
+    ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-
-
 export const Event = model('Event', EventSchema);
-

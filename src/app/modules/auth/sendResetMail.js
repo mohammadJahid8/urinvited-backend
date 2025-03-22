@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import config from '../../../config/config.js';
 
-export async function sendEmail(to, html) {
+export async function sendResetEmail(to, html) {
   try {
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
