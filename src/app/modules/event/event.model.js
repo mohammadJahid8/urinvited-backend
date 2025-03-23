@@ -95,6 +95,13 @@ const EventSchema = new Schema(
       allowRsvpAfterDueDate: {
         type: Boolean,
       },
+
+      isAutoReminderSet: {
+        type: Boolean,
+      },
+      autoReminderDate: {
+        type: Date,
+      },
       allowAdditionalAttendees: {
         type: Boolean,
       },

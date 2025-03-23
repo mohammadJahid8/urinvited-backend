@@ -29,20 +29,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/v1', routes);
 
 cron.schedule('* * * * *', async () => {
-  // app.get('/reminder', async (req, res) => {
-
-  const today = new Date();
-  const threeDaysLater = new Date();
-  threeDaysLater.setDate(today.getDate() + 3);
-
-  const start = new Date(today.setHours(0, 0, 0, 0)); // start of today
-  const end = new Date(threeDaysLater.setHours(23, 59, 59, 999)); // end of day +3
+  // runs every 1 min
+  const now = new Date();
+  const nextMinute = new Date(now.getTime() + 60 * 1000);
 
   try {
     const events = await Event.find({
-      'eventDetails.events.0.startDate': { $gte: start, $lte: end },
-      isReminderSent: false,
+      'eventDetails.autoReminderDate': { $gte: now, $lt: nextMinute },
+      isReminderSent: true,
     });
+
+    console.log({ events });
 
     const mailPromises = events.map(async doc => {
       const firstEvent = doc.eventDetails.events[0];
@@ -67,6 +64,7 @@ cron.schedule('* * * * *', async () => {
         emailBody,
       );
 
+      // Mark reminder as sent to avoid duplicate sends
       await Event.findByIdAndUpdate(doc._id, { isReminderSent: true });
 
       console.log(`Reminder sent to ${userEmail} for "${firstEvent.title}"`);
