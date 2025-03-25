@@ -10,7 +10,16 @@ const upload = multer({ storage });
 
 router.patch('/create', EventController.createOrUpdateEvent);
 
-router.patch('/customization/:id', upload.fields([{ name: 'eventLogo' }, { name: 'themeBackgroundImage' }, { name: 'footerBackgroundImage' }, { name: 'thumbnailImage' }]), EventController.updateEventCustomization);
+router.patch(
+  '/customization/:id',
+  upload.fields([
+    { name: 'eventLogo' },
+    { name: 'themeBackgroundImage' },
+    { name: 'footerBackgroundImage' },
+    { name: 'thumbnailImage' },
+  ]),
+  EventController.updateEventCustomization,
+);
 
 router.get('/', auth('user', 'admin'), EventController.getAllEvents);
 
@@ -22,4 +31,8 @@ router.delete('/:id', EventController.deleteEvent);
 
 router.patch('/comment', EventController.createComment);
 
-export const EventRoutes = router; 
+router.post('/send-message-reminder', EventController.sendMessageReminder);
+
+router.post('/send-anouncement', EventController.sendAnouncement);
+
+export const EventRoutes = router;

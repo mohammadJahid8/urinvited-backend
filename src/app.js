@@ -3,12 +3,9 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import httpStatus from 'http-status';
-import cron from 'node-cron';
 
 import routes from './app/routes/routes.js';
 import globalErrorHandler from './app/middlewares/globalErrorHandler.js';
-import { sendMail } from './utils/sendMail.js';
-import { Event } from './app/modules/event/event.model.js';
 
 const app = express();
 
@@ -28,53 +25,94 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // all routes
 app.use('/api/v1', routes);
 
-cron.schedule('* * * * *', async () => {
-  // runs every 1 min
-  const now = new Date();
-  const nextMinute = new Date(now.getTime() + 60 * 1000);
+// cron.schedule('* * * * *', async () => {
+// app.get('/reminder', async (req, res) => {
+//   const now = new Date('2025-03-24T18:00:00.000+00:00');
+//   const nextMinute = new Date(now.getTime() + 60 * 1000);
 
-  try {
-    const events = await Event.find({
-      'eventDetails.autoReminderDate': { $gte: now, $lt: nextMinute },
-      isReminderSent: true,
-    });
+//   try {
+//     const events = await Event.find({
+//       'eventDetails.autoReminderDate': { $gte: now, $lt: nextMinute },
+//     });
 
-    console.log({ events });
+//     const eventIds = events.map(event => event._id.toString());
 
-    const mailPromises = events.map(async doc => {
-      const firstEvent = doc.eventDetails.events[0];
-      const userEmail = doc.userEmail;
+//     const rsvps = await Rsvp.find({
+//       event: { $in: eventIds },
+//       isReminderSent: { $ne: true }, // only get unsent ones
+//     });
 
-      const eventDateStr = new Date(firstEvent.startDate).toDateString();
-      let timeStr = '';
+//     // Group RSVPs by eventId
+//     const rsvpsByEvent = {};
+//     rsvps.forEach(rsvp => {
+//       const eventId = rsvp.event.toString();
+//       if (!rsvpsByEvent[eventId]) {
+//         rsvpsByEvent[eventId] = [];
+//       }
+//       rsvpsByEvent[eventId].push(rsvp);
+//     });
 
-      if (firstEvent.startTime) {
-        timeStr += ` at ${firstEvent.startTime}`;
-      }
+//     const allUpdatedRsvpIds = [];
 
-      if (firstEvent.timeZone) {
-        timeStr += ` (${firstEvent.timeZone})`;
-      }
+//     await Promise.all(
+//       events.map(async event => {
+//         const rsvpsForEvent = rsvpsByEvent[event._id.toString()] || [];
 
-      const emailBody = `Hi! Just a reminder that your event "${firstEvent.title}" is scheduled for ${eventDateStr}${timeStr}.`;
+//         if (rsvpsForEvent.length === 0) return;
 
-      await sendMail(
-        userEmail,
-        `Reminder: Your event "${firstEvent.title}" is coming up soon!`,
-        emailBody,
-      );
+//         const firstEvent = event.eventDetails.events[0];
+//         const eventDateStr = new Date(firstEvent.startDate).toDateString();
 
-      // Mark reminder as sent to avoid duplicate sends
-      await Event.findByIdAndUpdate(doc._id, { isReminderSent: true });
+//         let timeStr = '';
+//         if (firstEvent.startTime) timeStr += ` at ${firstEvent.startTime}`;
+//         if (firstEvent.timeZone) timeStr += ` (${firstEvent.timeZone})`;
 
-      console.log(`Reminder sent to ${userEmail} for "${firstEvent.title}"`);
-    });
+//         const emailBody = `Hi! Just a reminder that your event "${firstEvent.title}" is scheduled for ${eventDateStr}${timeStr}.`;
 
-    await Promise.all(mailPromises);
-  } catch (err) {
-    console.error('Error sending reminders:', err);
-  }
-});
+//         const emailContacts = rsvpsForEvent
+//           .filter(rsvp => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rsvp.contact))
+//           .map(rsvp => rsvp.contact);
+
+//         const phoneContacts = rsvpsForEvent
+//           .filter(rsvp => /^\+?[1-9]\d{1,14}$/.test(rsvp.contact))
+//           .map(rsvp => rsvp.contact);
+
+//         if (emailContacts.length > 0) {
+//           await sendMail(
+//             emailContacts,
+//             `Reminder: Your event "${firstEvent.title}" is coming up soon!`,
+//             emailBody,
+//           );
+//         }
+
+//         await Promise.all(
+//           phoneContacts.map(contact =>
+//             client.messages.create({
+//               body: emailBody,
+//               from: config.twilio_phone_number,
+//               to: contact,
+//             }),
+//           ),
+//         );
+
+//         allUpdatedRsvpIds.push(...rsvpsForEvent.map(rsvp => rsvp._id));
+//       }),
+//     );
+
+//     // Update RSVPs only once
+//     if (allUpdatedRsvpIds.length > 0) {
+//       await Rsvp.updateMany(
+//         { _id: { $in: allUpdatedRsvpIds } },
+//         { $set: { isReminderSent: true } },
+//       );
+//     }
+
+//     res.send('Reminders sent successfully');
+//   } catch (err) {
+//     console.error('Error sending reminders:', err);
+//     res.status(500).send('Something went wrong while sending reminders');
+//   }
+// });
 
 app.get('/', (req, res) => {
   res.send('Welcome to event server !');

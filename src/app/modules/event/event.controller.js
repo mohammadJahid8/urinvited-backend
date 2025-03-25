@@ -1,7 +1,7 @@
-import httpStatus from "http-status";
-import catchAsync from "../../../shared/catchAsync.js";
-import sendResponse from "../../../shared/sendResponse.js";
-import { EventService } from "./event.service.js";
+import httpStatus from 'http-status';
+import catchAsync from '../../../shared/catchAsync.js';
+import sendResponse from '../../../shared/sendResponse.js';
+import { EventService } from './event.service.js';
 
 const createOrUpdateEvent = catchAsync(async (req, res) => {
   const result = await EventService.createOrUpdateEvent(req.body);
@@ -15,9 +15,13 @@ const createOrUpdateEvent = catchAsync(async (req, res) => {
 });
 
 const updateEventCustomization = catchAsync(async (req, res) => {
-  const parsedData = JSON.parse(req.body.data)
-  console.log("req.body", parsedData, req.files)
-  const result = await EventService.updateEventCustomization(req.params.id, parsedData, req.files);
+  const parsedData = JSON.parse(req.body.data);
+  console.log('req.body', parsedData, req.files);
+  const result = await EventService.updateEventCustomization(
+    req.params.id,
+    parsedData,
+    req.files,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -75,6 +79,26 @@ const createComment = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const sendMessageReminder = catchAsync(async (req, res) => {
+  const result = await EventService.sendMessageReminder(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Message reminder sent successfully!',
+    data: result,
+  });
+});
+const sendAnouncement = catchAsync(async (req, res) => {
+  const result = await EventService.sendAnouncement(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Anouncement sent successfully!',
+    data: result,
+  });
+});
 
 export const EventController = {
   createOrUpdateEvent,
@@ -84,4 +108,6 @@ export const EventController = {
   sendVideoPreviewInvite,
   deleteEvent,
   createComment,
+  sendMessageReminder,
+  sendAnouncement,
 };

@@ -27,7 +27,12 @@ const RsvpSchema = new Schema(
     },
 
     reaction: {
-      type: String
+      type: String,
+    },
+
+    isReminderSent: {
+      type: Boolean,
+      default: false,
     },
 
     guests: [
@@ -48,13 +53,12 @@ const RsvpSchema = new Schema(
           type: Boolean,
           default: true,
         },
-      }
+      },
     ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-
-export const Rsvp = model('Rsvp', RsvpSchema);   
+export const Rsvp = model('Rsvp', RsvpSchema);

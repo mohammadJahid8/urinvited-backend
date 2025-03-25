@@ -26,6 +26,7 @@ export default {
 
   twilio_sid: process.env.TWILIO_SID,
   twilio_auth_token: process.env.TWILIO_AUTH_TOKEN,
+  twilio_phone_number: process.env.TWILIO_PHONE_NUMBER,
 
   mail_pass: process.env.MAIL_PASS,
 
