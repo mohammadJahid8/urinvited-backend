@@ -13,12 +13,12 @@ const ShareSchema = new Schema(
         name: {
           type: String,
         },
-        email: {
+        contact: {
           type: String,
         },
-        phone: {
-          type: String,
-        },
+        // phone: {
+        //   type: String,
+        // },
         isAdult: {
           type: Boolean,
           default: true,
@@ -33,15 +33,14 @@ const ShareSchema = new Schema(
               type: Boolean,
               default: true,
             },
-          }
+          },
         ],
-      }
+      },
     ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-
-export const Share = model('Share', ShareSchema);  
+export const Share = model('Share', ShareSchema);

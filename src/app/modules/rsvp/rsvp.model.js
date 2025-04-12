@@ -18,8 +18,8 @@ const RsvpSchema = new Schema(
 
     rsvpStatus: {
       type: String,
-      enum: ['yes', 'no', 'maybe', 'pending'],
-      default: 'pending',
+      enum: ['yes', 'no', 'maybe', 'pending', 'sent', 'opened'],
+      default: 'sent',
     },
 
     message: {
@@ -31,6 +31,11 @@ const RsvpSchema = new Schema(
     },
 
     isReminderSent: {
+      type: Boolean,
+      default: false,
+    },
+
+    isFromShare: {
       type: Boolean,
       default: false,
     },

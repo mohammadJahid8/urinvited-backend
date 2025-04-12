@@ -96,14 +96,14 @@ const getAllEvents = async user => {
         as: 'video',
       },
     },
-    {
-      $lookup: {
-        from: 'shares',
-        localField: '_id',
-        foreignField: 'event',
-        as: 'share',
-      },
-    },
+    // {
+    //   $lookup: {
+    //     from: 'shares',
+    //     localField: '_id',
+    //     foreignField: 'event',
+    //     as: 'share',
+    //   },
+    // },
     {
       $lookup: {
         from: 'rsvps',
@@ -112,12 +112,12 @@ const getAllEvents = async user => {
         as: 'rsvps',
       },
     },
-    {
-      $unwind: {
-        path: '$share',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
+    // {
+    //   $unwind: {
+    //     path: '$share',
+    //     preserveNullAndEmptyArrays: true,
+    //   },
+    // },
     {
       $unwind: {
         path: '$video',
@@ -139,14 +139,14 @@ const getEventById = async id => {
         as: 'video',
       },
     },
-    {
-      $lookup: {
-        from: 'shares',
-        localField: '_id',
-        foreignField: 'event',
-        as: 'share',
-      },
-    },
+    // {
+    //   $lookup: {
+    //     from: 'shares',
+    //     localField: '_id',
+    //     foreignField: 'event',
+    //     as: 'share',
+    //   },
+    // },
     {
       $lookup: {
         from: 'rsvps',
@@ -156,7 +156,7 @@ const getEventById = async id => {
       },
     },
     { $unwind: { path: '$video', preserveNullAndEmptyArrays: true } },
-    { $unwind: { path: '$share', preserveNullAndEmptyArrays: true } },
+    // { $unwind: { path: '$share', preserveNullAndEmptyArrays: true } },
     // { $unwind: { path: '$rsvps', preserveNullAndEmptyArrays: true } }
   ]);
 

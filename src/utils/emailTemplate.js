@@ -59,7 +59,7 @@ export const template = (subject, body) => {
         ${body}
       </div>
       <div class="cta">
-        <img src="https://i.ibb.co.com/PzhSG03Y/urinvited-logo.png" alt="URINVITED Logo" />
+        <img src="https://res.cloudinary.com/ddvrxtfbc/image/upload/v1743663378/chmxrclkryvl8koyvep7.png" alt="URINVITED Logo" />
       </div>
     </div>
   </body>
