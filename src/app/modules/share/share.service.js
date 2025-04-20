@@ -1,12 +1,11 @@
-// import config from '../../../config/config.js';
-// import httpStatus from 'http-status';
+import config from '../../../config/config.js';
 import { template } from '../../../utils/emailTemplate.js';
 import { sendMail } from '../../../utils/sendMail.js';
-// import twilio from 'twilio';
+import twilio from 'twilio';
 import { Share } from './share.model.js';
 import { Rsvp } from '../rsvp/rsvp.model.js';
 
-// const client = twilio(config.twilio_sid, config.twilio_auth_token);
+const client = twilio(config.twilio_sid, config.twilio_auth_token);
 
 const sendMailToUser = async data => {
   const { subject, body, to } = data;
@@ -90,20 +89,33 @@ const shareEvent = async data => {
   const { eventLink, guests, hostName, eventId } = data;
 
   const guestWithEmails = guests.filter(guest => guest.contact.includes('@'));
+  const guestWithPhones = guests.filter(guest => guest.contact.includes('+'));
 
-  // +1 (774) 312-8918
+  for (const guest of guestWithPhones) {
+    await client.messages.create({
+      // to: "+8801633909408",
+      to: guest?.contact,
+      from: config.twilio_phone_number,
 
-  // const result = await client.messages.create({
-  //   to: '+17743128918',
-  //   from: '+16197752197',
-  //   body: `Hi karthik, You are invited to ${hostName}'s event. Please click on the link to join the event: ${eventLink}?e=karthik@gmail.com&n=karthik`,
-  //   // mediaUrl: [
-  //   //   "https://res.cloudinary.com/ddvrxtfbc/image/upload/v1738227298/z81qfpyoeklumutk1xvc.jpg"
-  //   // ]
-  //   shortenUrls: true,
-  // });
+      body: `Hi ${
+        guest?.name
+      }, You are invited to ${hostName}'s event. Please click on the link to join the event: ${eventLink}?e=${
+        guest?.email || guest?.phone
+      }&n=${guest?.name}`,
+      // mediaUrl: [
+      //   "https://res.cloudinary.com/ddvrxtfbc/image/upload/v1738227298/z81qfpyoeklumutk1xvc.jpg"
+      // ],
+      shortenUrls: true,
+    });
 
-  // console.log({ result });
+    // add a field isFromShare to true
+    guest.isFromShare = true;
+    await Rsvp.findOneAndUpdate(
+      { event: eventId, contact: guest?.contact },
+      guest,
+      { upsert: true, new: true },
+    );
+  }
 
   for (const guest of guestWithEmails) {
     await sendMail(
