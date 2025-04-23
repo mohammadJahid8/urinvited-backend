@@ -2,6 +2,8 @@ import cloudinary from 'cloudinary';
 import { Video } from './video.model.js';
 import config from '../../../config/config.js';
 import { Event } from '../event/event.model.js';
+import { sendMail } from '../../../utils/sendMail.js';
+import { template } from '../../../utils/emailTemplate.js';
 
 cloudinary.v2.config({
   cloud_name: config.cloud_name,
@@ -9,20 +11,17 @@ cloudinary.v2.config({
   api_secret: config.api_secret,
 });
 
-
 const uploadVideo = async (payload, file) => {
-
-  console.log(payload, file)
-
-
+  console.log(payload, file);
 
   const session = await Video.startSession();
   session.startTransaction();
   try {
-
-    payload.videos = [{
-      url: payload.url,
-    }]
+    payload.videos = [
+      {
+        url: payload.url,
+      },
+    ];
 
     const [newVideo] = await Video.create([payload], { session });
 
@@ -39,7 +38,7 @@ const uploadVideo = async (payload, file) => {
           video: newVideo._id,
         },
       ],
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -60,13 +59,20 @@ const updateVideo = async (payload, file) => {
     payload.thumbnail = result.secure_url;
   }
 
-
-  const result = await Video.findByIdAndUpdate(payload.videoId, { $push: { videos: payload } }, { new: true });
+  const result = await Video.findByIdAndUpdate(
+    payload.videoId,
+    { $push: { videos: payload } },
+    { new: true },
+  );
   return result;
 };
 
-const approveVideo = async (payload) => {
-  const result = await Video.findByIdAndUpdate(payload.videoId, { $set: { status: 'Approved' } }, { new: true });
+const approveVideo = async payload => {
+  const result = await Video.findByIdAndUpdate(
+    payload.videoId,
+    { $set: { status: 'Approved' } },
+    { new: true },
+  );
   return result;
 };
 
@@ -76,18 +82,40 @@ const createFeedback = async (payload, file) => {
     payload.attachment = result.secure_url;
   }
 
-  const result = await Video.findByIdAndUpdate(payload.videoId, { $push: { feedbacks: payload } }, { new: true });
+  const result = await Video.findByIdAndUpdate(
+    payload.videoId,
+    { $push: { feedbacks: payload } },
+    { new: true },
+  );
+
+  await sendMail(
+    'info@urnotinvited.com',
+    `Feedback from ${payload.email}`,
+    template(
+      `Feedback for video`,
+      `
+      <p>You have received a feedback regarding the video. Kindly review the details below and make the necessary updates:</p>
+      <ul>
+        <li><strong>Feedback Type:</strong> ${payload.feedbackType}</li>
+        <li><strong>Feedback:</strong> ${payload.feedback}</li>
+        <li><strong>Attachment:</strong> <a href="${payload.attachment}">View Attachment</a></li>
+      </ul>
+      `,
+    ),
+  );
+
   return result;
 };
 
-const getAllFeedbacks = async (videoId) => {
+const getAllFeedbacks = async videoId => {
   const result = await Video.findById(videoId).select('feedbacks');
   return result;
 };
 
-
 const getAllVideos = async () => {
-  const videos = await Video.find().populate('uploadedBy').sort({ createdAt: -1 });
+  const videos = await Video.find()
+    .populate('uploadedBy')
+    .sort({ createdAt: -1 });
   return videos;
 };
 
@@ -97,6 +125,5 @@ export const VideoService = {
   createFeedback,
   getAllFeedbacks,
   updateVideo,
-  approveVideo
+  approveVideo,
 };
-
