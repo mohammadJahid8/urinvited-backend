@@ -3,11 +3,19 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import httpStatus from 'http-status';
-
+import ffmpeg from 'fluent-ffmpeg';
+import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
+ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+import fs from 'fs';
+import multer from 'multer';
+import path from 'path';
 import routes from './app/routes/routes.js';
 import globalErrorHandler from './app/middlewares/globalErrorHandler.js';
 
 const app = express();
+const storage = multer.diskStorage({});
+
+const upload = multer({ storage });
 
 // const corsOptions = {
 //   origin: true,
@@ -117,7 +125,34 @@ app.use('/api/v1', routes);
 app.get('/', (req, res) => {
   res.send('Welcome to event server !');
 });
+app.post('/api/v1/trim', upload.single('video'), (req, res) => {
+  const { start, end } = req.body;
+  const inputPath = req.file.path;
 
+  // Ensure output directory exists
+  const outputDir = path.join(process.cwd(), 'outputs');
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  const outputPath = path.join(outputDir, `trimmed_${Date.now()}.mp4`);
+
+  ffmpeg(inputPath)
+    .setStartTime(start)
+    .setDuration(end - start)
+    .output(outputPath)
+    .on('end', () => {
+      res.download(outputPath, () => {
+        fs.unlinkSync(inputPath);
+        setTimeout(() => fs.unlinkSync(outputPath), 10000);
+      });
+    })
+    .on('error', err => {
+      console.error('FFmpeg error:', err);
+      res.status(500).send('Trimming failed');
+    })
+    .run();
+});
 // global error handler
 app.use(globalErrorHandler);
 

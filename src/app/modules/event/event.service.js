@@ -219,22 +219,22 @@ const createComment = async payload => {
   return event;
 };
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('*/30 * * * * *', async () => {
+  // console.log('Sending reminders');
   const now = new Date();
-  const nextMinute = new Date(now.getTime() + 60 * 1000);
+  // console.log('🚀 ~ cron.schedule ~ now:', now);
+  const recentPast = new Date(now.getTime() - 60 * 1000);
 
   try {
     const events = await Event.find({
-      'eventDetails.autoReminderDate': { $gte: now, $lt: nextMinute },
+      'eventDetails.autoReminderDate': { $gte: recentPast, $lte: now },
     });
-
+    console.log({ events });
     const eventIds = events.map(event => event._id.toString());
-
     const rsvps = await Rsvp.find({
       event: { $in: eventIds },
       isReminderSent: { $ne: true }, // only get unsent ones
     });
-
     // Group RSVPs by eventId
     const rsvpsByEvent = {};
     rsvps.forEach(rsvp => {
@@ -244,32 +244,23 @@ cron.schedule('* * * * *', async () => {
       }
       rsvpsByEvent[eventId].push(rsvp);
     });
-
     const allUpdatedRsvpIds = [];
-
     await Promise.all(
       events.map(async event => {
         const rsvpsForEvent = rsvpsByEvent[event._id.toString()] || [];
-
         if (rsvpsForEvent.length === 0) return;
-
         const firstEvent = event.eventDetails.events[0];
         const eventDateStr = new Date(firstEvent.startDate).toDateString();
-
         let timeStr = '';
         if (firstEvent.startTime) timeStr += ` at ${firstEvent.startTime}`;
         if (firstEvent.timeZone) timeStr += ` (${firstEvent.timeZone})`;
-
         const emailBody = `Hi! Just a reminder that your event "${firstEvent.title}" is scheduled for ${eventDateStr}${timeStr}.`;
-
         const emailContacts = rsvpsForEvent
           .filter(rsvp => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rsvp.contact))
           .map(rsvp => rsvp.contact);
-
         const phoneContacts = rsvpsForEvent
           .filter(rsvp => /^\+?[1-9]\d{1,14}$/.test(rsvp.contact))
           .map(rsvp => rsvp.contact);
-
         if (emailContacts.length > 0) {
           await sendMail(
             emailContacts,
@@ -277,7 +268,6 @@ cron.schedule('* * * * *', async () => {
             emailBody,
           );
         }
-
         await Promise.all(
           phoneContacts.map(contact =>
             client.messages.create({
@@ -287,11 +277,9 @@ cron.schedule('* * * * *', async () => {
             }),
           ),
         );
-
         allUpdatedRsvpIds.push(...rsvpsForEvent.map(rsvp => rsvp._id));
       }),
     );
-
     // Update RSVPs only once
     if (allUpdatedRsvpIds.length > 0) {
       await Rsvp.updateMany(

@@ -98,7 +98,11 @@ const createFeedback = async (payload, file) => {
       <ul>
         <li><strong>Feedback Type:</strong> ${payload.feedbackType}</li>
         <li><strong>Feedback:</strong> ${payload.feedback}</li>
-        <li><strong>Attachment:</strong> <a href="${payload.attachment}">View Attachment</a></li>
+        ${
+          payload.attachment
+            ? `<li><strong>Attachment:</strong> <a href="${payload.attachment}">View Attachment</a></li>`
+            : ''
+        }
       </ul>
       `,
     ),
