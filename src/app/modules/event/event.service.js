@@ -219,7 +219,7 @@ const createComment = async payload => {
   return event;
 };
 
-cron.schedule('*/30 * * * * *', async () => {
+cron.schedule('* * * * *', async () => {
   // console.log('Sending reminders');
   const now = new Date();
   // console.log('🚀 ~ cron.schedule ~ now:', now);
