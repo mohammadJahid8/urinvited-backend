@@ -268,7 +268,7 @@ cron.schedule('* * * * *', async () => {
             emailBody,
           );
         }
-        await Promise.all(
+        const phoneResults = await Promise.all(
           phoneContacts.map(contact =>
             client.messages.create({
               body: emailBody,
@@ -277,6 +277,7 @@ cron.schedule('* * * * *', async () => {
             }),
           ),
         );
+        console.log({ phoneResults });
         allUpdatedRsvpIds.push(...rsvpsForEvent.map(rsvp => rsvp._id));
       }),
     );
