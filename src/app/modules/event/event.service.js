@@ -243,7 +243,7 @@ cron.schedule('* * * * *', async () => {
       }
       rsvpsByEvent[eventId].push(rsvp);
     });
-    // const allUpdatedRsvpIds = [];
+    const allUpdatedRsvpIds = [];
     await Promise.all(
       events.map(async event => {
         const rsvpsForEvent = rsvpsByEvent[event._id.toString()] || [];
@@ -281,12 +281,12 @@ cron.schedule('* * * * *', async () => {
       }),
     );
     // // Update RSVPs only once
-    // if (allUpdatedRsvpIds.length > 0) {
-    //   await Rsvp.updateMany(
-    //     { _id: { $in: allUpdatedRsvpIds } },
-    //     { $set: { isReminderSent: true } },
-    //   );
-    // }
+    if (allUpdatedRsvpIds.length > 0) {
+      await Rsvp.updateMany(
+        { _id: { $in: allUpdatedRsvpIds } },
+        { $set: { isReminderSent: true } },
+      );
+    }
   } catch (err) {
     console.error('Error sending reminders:', err);
   }
