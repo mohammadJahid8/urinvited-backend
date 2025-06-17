@@ -233,7 +233,6 @@ cron.schedule('* * * * *', async () => {
     const eventIds = events.map(event => event._id.toString());
     const rsvps = await Rsvp.find({
       event: { $in: eventIds },
-      isReminderSent: { $ne: true }, // only get unsent ones
     });
     // Group RSVPs by eventId
     const rsvpsByEvent = {};
@@ -244,7 +243,7 @@ cron.schedule('* * * * *', async () => {
       }
       rsvpsByEvent[eventId].push(rsvp);
     });
-    const allUpdatedRsvpIds = [];
+    // const allUpdatedRsvpIds = [];
     await Promise.all(
       events.map(async event => {
         const rsvpsForEvent = rsvpsByEvent[event._id.toString()] || [];
@@ -278,16 +277,16 @@ cron.schedule('* * * * *', async () => {
           ),
         );
         console.log({ phoneResults });
-        allUpdatedRsvpIds.push(...rsvpsForEvent.map(rsvp => rsvp._id));
+        // allUpdatedRsvpIds.push(...rsvpsForEvent.map(rsvp => rsvp._id));
       }),
     );
-    // Update RSVPs only once
-    if (allUpdatedRsvpIds.length > 0) {
-      await Rsvp.updateMany(
-        { _id: { $in: allUpdatedRsvpIds } },
-        { $set: { isReminderSent: true } },
-      );
-    }
+    // // Update RSVPs only once
+    // if (allUpdatedRsvpIds.length > 0) {
+    //   await Rsvp.updateMany(
+    //     { _id: { $in: allUpdatedRsvpIds } },
+    //     { $set: { isReminderSent: true } },
+    //   );
+    // }
   } catch (err) {
     console.error('Error sending reminders:', err);
   }
